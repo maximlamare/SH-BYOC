@@ -174,7 +174,9 @@ class Ingestor:
                     ):
                         if "Contents" in subpages:
                             for subobj in subpages["Contents"]:
-                                if subobj["Key"].endswith((".tiff", ".tif")):
+                                if subobj["Key"].endswith(
+                                    (".tiff", ".tif", ".TIF", ".TIFF")
+                                ):
                                     tiff_files.append(subobj["Key"])
 
         self.file_list = tiff_files
