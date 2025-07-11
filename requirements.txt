@@ -1,0 +1,8 @@
+sentinelhub
+boto3
+botocore
+requests
+requests-oauthlib
+oauthlib
+ipykernel
+pyproj

@@ -1,0 +1,14 @@
+name: sentinel-byoc
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - sentinelhub
+  - boto3
+  - botocore
+  - requests
+  - requests-oauthlib
+  - oauthlib
+  - ipykernel
+  - pyproj

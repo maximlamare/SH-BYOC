@@ -1,0 +1,7 @@
+{
+  "sentinel_hub_client_id": "YOUR_SENTINEL_HUB_CLIENT_ID",
+  "sentinel_hub_client_secret": "YOUR_SENTINEL_HUB_CLIENT_SECRET",
+  "s3_username": "YOUR_S3_USERNAME",
+  "s3_password": "YOUR_S3_PASSWORD",
+  "bucket_url": "YOUR_BUCKET_URL"
+}
