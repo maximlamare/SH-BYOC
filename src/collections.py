@@ -110,6 +110,7 @@ class Ingestor:
                     band_index=1,
                     bit_depth=band["bit_depth"],
                     sample_format=band["sample_format"],
+                    no_data=band["no_data"] if "no_data" in band else None,
                 )
             if storage_id:
                 band_config = ByocCollectionAdditionalData(
@@ -133,6 +134,29 @@ class Ingestor:
 
         self.byoc_collection = self.byoc_client.create_collection(new_collection)
         time.sleep(5)
+
+    def connect_to_existing_collection(self, collection_id: str) -> None:
+        """
+        Connect to an existing BYOC collection using its ID.
+
+        This function retrieves an existing collection from Sentinel Hub using the
+        provided collection ID and sets it as the current collection for this Ingestor.
+
+        Args:
+            collection_id: The UUID of the existing BYOC collection
+
+        Returns:
+            None: The existing collection is stored in self.byoc_collection
+
+        Raises:
+            Exception: If the collection cannot be found or accessed
+        """
+        try:
+            # Get the existing collection using the BYOC client
+            self.byoc_collection = self.byoc_client.get_collection(collection_id)
+        except Exception as e:
+            logging.error(f"Failed to connect to collection {collection_id}: {str(e)}")
+            raise Exception(f"Failed to connect to existing collection: {str(e)}")
 
     def list_tiles(self, params: TileListParameters) -> List[str]:
         """
@@ -212,16 +236,32 @@ class Ingestor:
         for tile_path in self.file_list:
             # Get the sensing time from the tile path
             folder_name = tile_path.split("/")[sensing_time_position["path"]]
-            datetime_str = folder_name.split(sensing_time_position["delimiter"])[
-                sensing_time_position["position"]
-            ]
+            parts = folder_name.split(sensing_time_position["delimiter"])
+            if isinstance(sensing_time_position["position"], int):
+                datetime_str = parts[sensing_time_position["position"]]
+            else:
+
+                datetime_str = "".join(
+                    [parts[i] for i in sensing_time_position["position"]]
+                )
+
             datetime_obj = datetime.strptime(
                 datetime_str, sensing_time_position["format"]
             )
             file_name = tile_path.split("/")[band_position["path"]]
-            split_file_name = file_name.split(band_position["delimiter"])
+
+            # Split filename and extension to preserve .tiff
+            name_parts = file_name.rsplit(".", 1)
+            base_name = name_parts[0]
+            extension = f".{name_parts[1]}" if len(name_parts) > 1 else ""
+
+            # Replace band identifier in the base name
+            split_file_name = base_name.split(band_position["delimiter"])
             split_file_name[band_position["position"]] = "(BAND)"
-            new_file_name = band_position["delimiter"].join(split_file_name)
+            new_base_name = band_position["delimiter"].join(split_file_name)
+
+            # Reconstruct filename with extension
+            new_file_name = new_base_name + extension
             parent_path = tile_path.split("/")[0:-1]
             byoc_path = f"{'/'.join(parent_path)}/{new_file_name}"
 
