@@ -236,11 +236,17 @@ class Ingestor:
         for tile_path in self.file_list:
             # Get the sensing time from the tile path
             folder_name = tile_path.split("/")[sensing_time_position["path"]]
-            parts = folder_name.split(sensing_time_position["delimiter"])
+            
+            # Handle empty or None delimiter for datetime extraction
+            if sensing_time_position["delimiter"] in ("", None):
+                # No delimiter, use the whole folder name
+                parts = [folder_name]
+            else:
+                parts = folder_name.split(sensing_time_position["delimiter"])
+            
             if isinstance(sensing_time_position["position"], int):
                 datetime_str = parts[sensing_time_position["position"]]
             else:
-
                 datetime_str = "".join(
                     [parts[i] for i in sensing_time_position["position"]]
                 )
@@ -255,10 +261,15 @@ class Ingestor:
             base_name = name_parts[0]
             extension = f".{name_parts[1]}" if len(name_parts) > 1 else ""
 
-            # Replace band identifier in the base name
-            split_file_name = base_name.split(band_position["delimiter"])
-            split_file_name[band_position["position"]] = "(BAND)"
-            new_base_name = band_position["delimiter"].join(split_file_name)
+            # Handle empty or None delimiter for band extraction
+            if band_position["delimiter"] in ("", None):
+                # No delimiter, cannot extract band - use entire base name as placeholder
+                new_base_name = "(BAND)"
+            else:
+                # Replace band identifier in the base name
+                split_file_name = base_name.split(band_position["delimiter"])
+                split_file_name[band_position["position"]] = "(BAND)"
+                new_base_name = band_position["delimiter"].join(split_file_name)
 
             # Reconstruct filename with extension
             new_file_name = new_base_name + extension
