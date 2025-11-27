@@ -306,7 +306,8 @@ class Ingestor:
         existing_tiles = list(self.byoc_client.iter_tiles(self.byoc_collection))
         for tile in byoc_tiles:
             byoc_tile = ByocTile(path=tile[0], sensing_time=tile[1])
-            if byoc_tile.path not in [x.path for x in existing_tiles]:
+            existing_paths = [x["path"] if isinstance(x, dict) else x.path for x in existing_tiles]
+            if byoc_tile.path not in existing_paths:
                 self.byoc_client.create_tile(self.byoc_collection, byoc_tile)
 
     def collection_tile_report(self) -> Tuple[Dict[str, int], List[str]]:
