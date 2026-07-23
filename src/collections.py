@@ -107,7 +107,7 @@ class Ingestor:
                 # Build the band parameters
                 band_parameters[band["name"]] = ByocCollectionBand(
                     source=band["source"],
-                    band_index=1,
+                    band_index=band.get("band_index", 1),
                     bit_depth=band["bit_depth"],
                     sample_format=band["sample_format"],
                     no_data=band["no_data"] if "no_data" in band else None,
